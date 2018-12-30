@@ -18,7 +18,11 @@ RUN (rm -rf /moosefs) \
   && (rm /usr/bin/aclocal-1.15; rm /usr/bin/automake-1.15) \
   && (apk del --virtual build-dependencies build-base perl git automake autoconf fuse-dev)
 
-
+# Katalog montowania obrazow systemowych
+ENV MFSMASTER mfsmaster.dev.p.lodz.pl
+ENV MNTDIR /srv/templates
+ENV MFSDIR /obrazy/KOPL
+RUN if ! [ -d $MNTDIR ]; then mkdir -p $MNTDIR; fi
 
 # Instalacja modulu httpd do busybox
 RUN apk add busybox-extras
@@ -26,4 +30,4 @@ RUN apk add busybox-extras
 # Konfiguracja DNS
 ADD resolv.conf /etc/
 
-CMD ["/bin/sh","-c","/bin/busybox-extras httpd -p 80 -h /srv/ -f -vvv"]
+CMD ["/bin/sh","-c","/usr/local/bin/mfsmount -H $MFSMASTER -S $MFSDIR $MNTDIR; /bin/busybox-extras httpd -p 80 -h /srv/ -f -vvv"]
